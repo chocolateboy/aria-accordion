@@ -1,6 +1,6 @@
 # flexcord
 
-[![Build Status](https://secure.travis-ci.org/chocolateboy/flexcord.svg)](http://travis-ci.org/chocolateboy/flexcord)
+[![Build Status](https://secure.travis-ci.org/chocolateboy/aria-accordion.svg)](http://travis-ci.org/chocolateboy/aria-accordion)
 [![NPM Version](http://img.shields.io/npm/v/flexcord.svg)](https://www.npmjs.org/package/flexcord)
 
 - [NAME](#name)
