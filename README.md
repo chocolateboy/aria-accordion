@@ -9,9 +9,6 @@
 - [DESCRIPTION](#description)
 - [WHY?](#why)
 - [TERMINOLOGY](#terminology)
-  - [header](#terminology-header)
-  - [button](#terminology-button)
-  - [panel](#terminology-panel)
 - [TYPES](#types)
   - [AccordionItem](#type-accordion-item)
   - [Options](#type-options)
@@ -57,6 +54,8 @@ flexcord - flexible ARIA-first accordions which work with your existing CSS, mar
 
 # SYNOPSIS
 
+### JavaScript
+
 ```javascript
 import { Accordion, MultiAccordion } from 'flexcord'
 
@@ -65,6 +64,17 @@ for (const el of document.querySelectorAll('.accordion')) {
     klass.mount(el, options)
 }
 ```
+
+### CSS
+
+```css
+/* hide closed panels (the default) */
+.accordion [aria-hidden="true"] {
+    display: none;
+}
+```
+
+### HTML
 
 **before**:
 
@@ -76,12 +86,12 @@ for (const el of document.querySelectorAll('.accordion')) {
     <section id="foo-panel">...</section>
 
     <div role="heading">
-        <button aria-controls="bar-panel" aria-expanded="true">Foo</button>
+        <button aria-controls="bar-panel" aria-expanded="true">Bar</button>
     </div>
     <section id="bar-panel">...</section>
 
     <div role="heading">
-        <button aria-controls="baz-panel">Foo</button>
+        <button aria-controls="baz-panel">Baz</button>
     </div>
     <section id="baz-panel">...</section>
 </div>
@@ -90,21 +100,42 @@ for (const el of document.querySelectorAll('.accordion')) {
 **after**:
 
 ```html
-<div class="accordion">
+<div role="presentation" class="accordion">
     <div role="heading">
-        <button id="header-abc" aria-controls="foo-panel" aria-expanded="false">Foo</button>
+        <button
+            id="header-abc"
+            aria-controls="foo-panel"
+            aria-expanded="false">Foo</button>
     </div>
-    <section id="foo-panel" role="region" aria-hidden="true">...</section>
+    <section
+        id="foo-panel"
+        role="region"
+        aria-labelledby="header-abc"
+        aria-hidden="true">...</section>
 
     <div role="heading">
-        <button id="header-123" aria-controls="bar-panel" aria-expanded="true">Foo</button>
+        <button
+            id="header-def"
+            aria-controls="bar-panel"
+            aria-expanded="true">Bar</button>
     </div>
-    <section id="bar-panel" role="region" aria-hidden="false">...</section>
+    <section
+        id="bar-panel"
+        role="region"
+        aria-labelledby="header-def"
+        aria-hidden="false">...</section>
 
     <div role="heading">
-        <button id="header-xyz" aria-controls="baz-panel" aria-expanded="false">Foo</button>
+        <button
+            id="header-ghi"
+            aria-controls="baz-panel"
+            aria-expanded="false">Baz</button>
     </div>
-    <section id="baz-panel" aria-hidden="true">...</section>
+    <section
+        id="baz-panel"
+        role="region"
+        aria-labelledby="header-ghi"
+        aria-hidden="true">...</section>
 </div>
 ```
 
@@ -132,7 +163,7 @@ The following terms are used in the description below:
 ## header <a name="terminology-header"></a>
 
 A header-like element (e.g. H1, H2 etc.) which typically contains a button-like element which triggers
-the opening/closing of its correspoinding accordion panel.
+the opening/closing of its corresponding accordion panel.
 
 ## button  <a name="terminology-button"></a>
 
@@ -148,7 +179,7 @@ The following types are referenced in the descriptions below:
 
 ## AccordionItem <a name="type-accordion-item"></a>
 
-An object representing a button/panel pair in an accordion:
+An object representing a header/panel pair in an accordion:
 
 ```typescript
 type AccordionItem = {
@@ -280,30 +311,31 @@ The constructor takes an optional [Options](#type-options) object with the follo
 ## header
 
 **Type** string | (accordion: HTMLElement) → Iterable&lt;HTMLElement&gt; <br />
-**Default**: `'[role="heading"]'`
+**Default**: `"[role='heading']"`
 
 A selector which returns a collection (e.g. NodeList, Array, jQuery instance etc.) of DOM elements
 representing the header-like elements inside the accordion. Headers are elements which contain (or
 *are*) an element which triggers the opening/closing of the corresponding panel.
 
+The default value matches elements with a `heading` role.
+
 If supplied as a string, it is interepeted as a CSS3 selector and converted into a function which
 returns a NodeList resulting from the evaluation of the selector against the accordion with `querySelectorAll`.
-
-The default value matches elements with a `heading` role.
 
 ## button
 
 **Type** string | (accordion: HTMLElement, header: HTMLElement) → HTMLElement <br />
-**Default**: `'[aria-controls]'`
+**Default**: `"[aria-controls]"`
 
-A selector (string) or function which returns an element in the supplied header which functions
-like a button. An `onclick` event handler is attached to this element which triggers the opening/closing
-of the associated panel.
+A selector (string) or function which returns an element in the header which functions like a button.
+An `onclick` event handler is attached to this element which triggers the opening/closing of the
+associated panel.
 
-Typically, the button element is the child/descendant of an element which function like a [header](#header)
-element (e.g. H1, H2 etc.). By default, this is an element with a `heading` role e.g.
+The default value selects the first element in the header with a non-empty `aria-controls` attribute.
 
-The default value selects elements with a non-empty `aria-controls` ID.
+Typically, the button element is the child/descendant of an element which functions like a [header](#header)
+element (e.g. H1, H2 etc.). By default, this is an element with a `heading` role e.g.:
+
 
 ```html
 <div class="accordion">
@@ -313,29 +345,29 @@ The default value selects elements with a non-empty `aria-controls` ID.
     <section id="foo-panel">...</section>
 
     <div role="heading">
-        <button aria-controls="bar-panel">bar</button>
+        <button aria-controls="bar-panel">Bar</button>
     </div>
     <section id="bar-panel">...</section>
 </div>
 ```
 
-\- but they can easily be the same element if the function argument is used e.g.:
-
-```html
-<div class="accordion">
-    <button aria-controls="foo-panel">Foo</button>
-    <section id="foo-panel">...</section>
-
-    <button aria-controls="bar-panel">bar</button>
-    <section id="bar-panel">...</section>
-</div>
-```
+\- but they can easily be the same element if a suitable selector is supplied e.g.:
 
 ```javascript
 Accordion.mount(el, {
     header: '[aria-controls]',
     button: (accordion, header) => header,
 })
+```
+
+```html
+<div class="accordion">
+    <button aria-controls="foo-panel">Foo</button>
+    <section id="foo-panel">...</section>
+
+    <button aria-controls="bar-panel">Bar</button>
+    <section id="bar-panel">...</section>
+</div>
 ```
 
 ## panel
@@ -353,38 +385,38 @@ events.
 
 ## before:change
 
-**Type**: ([AccordionItem](#accordionitem), type: string, accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), type: string, accordion: Accordion) → void
 
 Fired after a button is clicked and before its corresponding panel is opened or closed. Passed the action
 (i.e. "open" or "close") as a parameter.
 
 ## before:close
 
-**Type**: ([AccordionItem](#accordionitem), accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), accordion: Accordion) → void
 
 Fired after a button is clicked and before its corresponding panel is closed.
 
 ## before:open
 
-**Type**: ([AccordionItem](#accordionitem), accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), accordion: Accordion) → void
 
 Fired after a button is clicked and before its corresponding panel is opened.
 
 ## change
 
-**Type**: ([AccordionItem](#accordionitem), type: string, accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), type: string, accordion: Accordion) → void
 
 Fired after a panel is opened or closed. Passed the action (i.e. "open" or "close") as a parameter.
 
 ## close
 
-**Type**: ([AccordionItem](#accordionitem), accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), accordion: Accordion) → void
 
 Fired after a panel is closed.
 
 ## open
 
-**Type**: ([AccordionItem](#accordionitem), accordion: Accordion) → void
+**Type**: (item: [AccordionItem](#accordionitem), accordion: Accordion) → void
 
 Fired after a panel is opened.
 
@@ -396,7 +428,7 @@ Fired after a panel is opened.
 
 The following NPM scripts are available:
 
-- build - compile and package the library
+- build - compile and bundle the library for testing and release
 - clean - remove temporary files and build artifacts
 - test - run the test suite
 
