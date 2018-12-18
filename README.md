@@ -279,7 +279,8 @@ The constructor takes an optional [Options](#type-options) object with the follo
 
 ## header
 
-**Type** string | (accordion: HTMLElement) → Iterable&lt;HTMLElement&gt;
+**Type** string | (accordion: HTMLElement) → Iterable&lt;HTMLElement&gt; <br />
+**Default**: `'[role="heading"]'`
 
 A selector which returns a collection (e.g. NodeList, Array, jQuery instance etc.) of DOM elements
 representing the header-like elements inside the accordion. Headers are elements which contain (or
@@ -288,9 +289,12 @@ representing the header-like elements inside the accordion. Headers are elements
 If supplied as a string, it is interepeted as a CSS3 selector and converted into a function which
 returns a NodeList resulting from the evaluation of the selector against the accordion with `querySelectorAll`.
 
+The default value matches elements with a `heading` role.
+
 ## button
 
-**Type** string | (accordion: HTMLElement, header: HTMLElement) → HTMLElement
+**Type** string | (accordion: HTMLElement, header: HTMLElement) → HTMLElement <br />
+**Default**: `'[aria-controls]'`
 
 A selector (string) or function which returns an element in the supplied header which functions
 like a button. An `onclick` event handler is attached to this element which triggers the opening/closing
@@ -298,6 +302,8 @@ of the associated panel.
 
 Typically, the button element is the child/descendant of an element which function like a [header](#header)
 element (e.g. H1, H2 etc.). By default, this is an element with a `heading` role e.g.
+
+The default value selects elements with a non-empty `aria-controls` ID.
 
 ```html
 <div class="accordion">
@@ -337,6 +343,8 @@ Accordion.mount(el, {
 **Type** string | (accordion: HTMLElement, header: HTMLElement, button: HTMLElementt) → HTMLElement
 
 The container of the content to display/hide when the corresponding header is activated/de-activated.
+
+The default value is a function which selects the element whose ID corresponds to the button's `aria-controls` ID.
 
 # Events
 
@@ -409,7 +417,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-0.0.1
+0.0.2
 
 # AUTHOR
 
