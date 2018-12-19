@@ -449,7 +449,7 @@ The following NPM scripts are available:
 
 # VERSION
 
-0.0.2
+0.0.3
 
 # AUTHOR
 

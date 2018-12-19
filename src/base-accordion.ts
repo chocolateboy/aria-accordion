@@ -1,9 +1,8 @@
-import Item from './item'
-import { ItemData } from './item'
-import { setAttribute } from './util'
+import Item, { ItemData } from './item'
+import { setAttribute }   from './util'
+import { EventEmitter }   from 'events'
 
-const Emitter = require('little-emitter')
-const nanoid  = require('nanoid/non-secure')
+const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
 type GetButton = (accordion: HTMLElement, header: HTMLElement) => HTMLElement;
@@ -61,7 +60,7 @@ function convertToGetButton (_selector: string | GetButton): GetButton {
     }
 }
 
-export default class BaseAccordion extends Emitter {
+export default class BaseAccordion extends EventEmitter {
     protected _accordion: HTMLElement
     protected _items: Array<Item>
 

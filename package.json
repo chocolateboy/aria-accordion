@@ -1,6 +1,6 @@
 {
     "name": "flexcord",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Flexible, ARIA-first accordions which work with your existing CSS, markup, and code",
     "repository": "chocolateboy/aria-accordion",
     "author": "chocolateboy",
@@ -28,7 +28,7 @@
     ],
     "dependencies": {
         "core-js": "^2.5.7",
-        "little-emitter": "^0.1.3",
+        "events": "^3.0.0",
         "nanoid": "^2.0.0"
     },
     "devDependencies": {

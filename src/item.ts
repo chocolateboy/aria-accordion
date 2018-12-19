@@ -1,6 +1,5 @@
-const Emitter = require('little-emitter')
-
 import { setAttribute } from './util'
+import { EventEmitter } from 'events'
 
 export type ItemData = {
     button: HTMLElement;
@@ -10,7 +9,7 @@ export type ItemData = {
     panel: HTMLElement;
 }
 
-export default class Item extends Emitter {
+export default class Item extends EventEmitter {
     button: HTMLElement
     header: HTMLElement
     index: number
