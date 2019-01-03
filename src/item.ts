@@ -1,5 +1,6 @@
 import { setAttribute } from './util'
-import { EventEmitter } from 'events'
+
+const EventEmitter = require('little-emitter')
 
 export type ItemData = {
     button: HTMLElement;
@@ -9,6 +10,8 @@ export type ItemData = {
     panel: HTMLElement;
 }
 
+export type IsDisabled = (data: ItemData) => boolean
+
 export default class Item extends EventEmitter {
     button: HTMLElement
     header: HTMLElement
@@ -16,13 +19,16 @@ export default class Item extends EventEmitter {
     isOpen = false
     panel: HTMLElement
 
-    constructor ({ button, header, index, panel }) {
+    private _isDisabled: IsDisabled
+
+    constructor ({ button, header, index, isDisabled, panel }) {
         super()
 
         this.button = button
         this.header = header
         this.index = index
         this.panel = panel
+        this._isDisabled = isDisabled
     }
 
     get data (): ItemData {
@@ -35,7 +41,13 @@ export default class Item extends EventEmitter {
         }
     }
 
+    get isDisabled () {
+        return this._isDisabled(this.data)
+    }
+
     close () {
+        if (this.isDisabled) return
+
         this.emit('before:change', 'close', this)
         this.emit('before:close', this)
 
@@ -48,6 +60,8 @@ export default class Item extends EventEmitter {
     }
 
     open () {
+        if (this.isDisabled) return
+
         this.emit('before:change', 'open', this)
         this.emit('before:open', this)
 

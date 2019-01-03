@@ -1,17 +1,18 @@
-import Item, { ItemData } from './item'
-import { setAttribute }   from './util'
-import { EventEmitter }   from 'events'
+import Item, { ItemData, IsDisabled as IsItemDisabled } from './item'
+import { setAttribute }                                 from './util'
 
+const EventEmitter = require('little-emitter')
 const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
-type GetButton = (accordion: HTMLElement, header: HTMLElement) => HTMLElement;
-type GetPanel = (accordion: HTMLElement, header: HTMLElement, button: HTMLElement) => HTMLElement;
+type GetButton = (params: { accordion: HTMLElement, header: HTMLElement }) => HTMLElement;
+type GetPanel = (params: { accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement;
 
 export type Options = {
     header?: string | GetHeaders;
     button?: string | GetButton;
     panel?: GetPanel;
+    itemDisabled?: IsItemDisabled;
 }
 
 const enum Warning { NO_HEADERS, NO_BUTTON, NO_PANEL }
@@ -19,7 +20,6 @@ const enum Warning { NO_HEADERS, NO_BUTTON, NO_PANEL }
 const OPTIONS = {
     header: '[role="heading"]',
     button: '[aria-controls]:not([aria-controls=""])',
-    panel: getPanel,
 }
 
 const FORWARD_EVENTS = [
@@ -31,14 +31,12 @@ const FORWARD_EVENTS = [
     'open',
 ]
 
-function getPanel (accordion: HTMLElement, _header: HTMLElement, button: HTMLElement): HTMLElement | null {
-    const id = button.getAttribute('aria-controls')
-
-    if (id) {
-        const $id = JSON.stringify(id)
-        return accordion.querySelector(`[id=${$id}]`)
-    } else {
-        return null
+function convertToGetButton (_selector: string | GetButton): GetButton {
+    return function ({ accordion, header }: { accordion: HTMLElement, header: HTMLElement }) {
+        const selector = (typeof _selector === 'string')
+            ? (_accordion, header) => header.querySelector(_selector)
+            : _selector
+        return selector(accordion, header)
     }
 }
 
@@ -51,13 +49,19 @@ function convertToGetHeaders (_selector: string | GetHeaders): GetHeaders {
     }
 }
 
-function convertToGetButton (_selector: string | GetButton): GetButton {
-    return function (accordion: HTMLElement, header: HTMLElement) {
-        const selector = (typeof _selector === 'string')
-            ? (_accordion, header) => header.querySelector(_selector)
-            : _selector
-        return selector(accordion, header)
+function defaultGetPanel ({ accordion, button }: { accordion: HTMLElement, button: HTMLElement }): HTMLElement | null {
+    const id = button.getAttribute('aria-controls')
+
+    if (id) {
+        const quotedId = JSON.stringify(id)
+        return accordion.querySelector(`[id=${quotedId}]`)
+    } else {
+        return null
     }
+}
+
+function defaultIsItemDisabled ({ button }: ItemData): boolean {
+    return button.getAttribute('aria-disabled') === 'true'
 }
 
 export default class BaseAccordion extends EventEmitter {
@@ -82,11 +86,12 @@ export default class BaseAccordion extends EventEmitter {
         const options = Object.assign({}, OPTIONS, _options || {})
         const getHeaders = convertToGetHeaders(options.header)
         const getButton = convertToGetButton(options.button)
-        const getPanel = options.panel
+        const isItemDisabled = options.itemDisabled || defaultIsItemDisabled
+        const getPanel = options.panel || defaultGetPanel
 
         this._accordion = accordion
         this._items = []
-        this._collectItems(getHeaders, getButton, getPanel)
+        this._collectItems({ getButton, getHeaders, getPanel, isItemDisabled })
     }
 
     *[Symbol.iterator](): Iterator<ItemData> {
@@ -139,47 +144,29 @@ export default class BaseAccordion extends EventEmitter {
         }
     }
 
-    private _collectItems (getHeaders: GetHeaders, getButton: GetButton, getPanel: GetPanel) {
+    private _collectItems ({ getButton, getHeaders, getPanel, isItemDisabled }) {
         const { accordion } = this
         const headers = getHeaders(accordion)
 
         if (!headers) {
-            this.emit(
-                'warning',
-                Warning.NO_HEADERS,
-                'no headers found in accordion',
-                accordion
-            )
-
+            this.emit('warning', Warning.NO_HEADERS, 'no headers found in accordion', accordion)
             return
         }
 
         const state = this.constructor._getState()
 
         for (const header of headers) {
-            const button = getButton(accordion, header)
+            const button = getButton({ accordion, header })
 
             if (!button) {
-                this.emit(
-                    'warning',
-                    Warning.NO_BUTTON,
-                    'no button found in header',
-                    header
-                )
+                this.emit('warning', Warning.NO_BUTTON, 'no button found in header', header)
                 continue
             }
 
-            const panel = getPanel(accordion, header, button)
+            const panel = getPanel({ accordion, button, header })
 
             if (!panel) {
-                this.emit(
-                    'warning',
-                    Warning.NO_PANEL,
-                    'panel not found',
-                    accordion,
-                    header,
-                    button
-                )
+                this.emit('warning', Warning.NO_PANEL, 'panel not found', accordion, header, button)
                 continue
             }
 
@@ -198,7 +185,7 @@ export default class BaseAccordion extends EventEmitter {
             setAttribute(panel, 'aria-labelledby', header.id)
 
             const index = this._items.length
-            const item = new Item({ button, header, index, panel })
+            const item = new Item({ button, header, index, isDisabled: isItemDisabled, panel })
 
             this._onItem(item, state)
             this._items.push(item)

@@ -28,6 +28,7 @@
 - [Options](#options)
   - [header](#header)
   - [button](#button)
+  - [itemDisabled](#itemdisabled)
   - [panel](#panel)
 - [Events](#events)
   - [before:change](#beforechange)
@@ -198,8 +199,9 @@ Optional hooks to configure an accordion's HTML bindings and behavior.
 ```typescript
 type Options = {
     header?: string | (accordion: HTMLElement) => Iterable<HTMLElement>;
-    button?: string | (accordion: HTMLElement, header: HTMLElement) => HTMLElement;
-    panel?: (accordion: HTMLElement, header: HTMLElement, button: HTMLElement) => HTMLElement;
+    button?: string | ({ accordion: HTMLElement, header: HTMLElement }) => HTMLElement;
+    itemDisabled?: (item: AccordionItem) => boolean;
+    panel?: ({ accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement;
 }
 ```
 
@@ -324,7 +326,7 @@ returns a NodeList resulting from the evaluation of the selector against the acc
 
 ## button
 
-**Type** string | (accordion: HTMLElement, header: HTMLElement) → HTMLElement <br />
+**Type** string | ({ accordion: HTMLElement, header: HTMLElement }) → HTMLElement <br />
 **Default**: `"[aria-controls]"`
 
 A selector (string) or function which returns an element in the header which functions like a button.
@@ -353,13 +355,6 @@ element (e.g. H1, H2 etc.). By default, this is an element with a `heading` role
 
 \- but they can easily be the same element if a suitable selector is supplied e.g.:
 
-```javascript
-Accordion.mount(el, {
-    header: '[aria-controls]',
-    button: (accordion, header) => header,
-})
-```
-
 ```html
 <div class="accordion">
     <button aria-controls="foo-panel">Foo</button>
@@ -370,9 +365,34 @@ Accordion.mount(el, {
 </div>
 ```
 
+```javascript
+Accordion.mount(el, {
+    header: '[aria-controls]',
+    button: ({ accordion, header }) => header,
+})
+```
+
+## itemDisabled
+
+**Type** ([AccordionItem](#type-accordion-item)) → boolean
+
+A function used to determine whether an item is disabled. Disabled items don't respond to open or close (or toggle) actions.
+
+The default implementation returns true if the button has an `aria-disabled` attribute with a true value, or false otherwise.
+
+Can be used e.g. to treat an item with a disabled button as disabled e.g.:
+
+```javascript
+function itemDisabled ({ button }) {
+    return button.hasAttribute('disabled')
+}
+
+const accordion = new Accordion(el, { itemDisabled })
+```
+
 ## panel
 
-**Type** string | (accordion: HTMLElement, header: HTMLElement, button: HTMLElementt) → HTMLElement
+**Type** string | ({ accordion: HTMLElement, header: HTMLElement, button: HTMLElement }) → HTMLElement
 
 The container of the content to display/hide when the corresponding header is activated/de-activated.
 
