@@ -5,8 +5,8 @@ const EventEmitter = require('little-emitter')
 const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
-type GetButton = (params: { accordion: HTMLElement, header: HTMLElement }) => HTMLElement;
-type GetPanel = (params: { accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement;
+type GetButton = (params: { accordion: HTMLElement, header: HTMLElement }) => HTMLElement | null;
+type GetPanel = (params: { accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement | null;
 
 export type Options = {
     header?: string | GetHeaders;
@@ -31,21 +31,23 @@ const FORWARD_EVENTS = [
     'open',
 ]
 
-function convertToGetButton (_selector: string | GetButton): GetButton {
-    return function ({ accordion, header }: { accordion: HTMLElement, header: HTMLElement }) {
-        const selector = (typeof _selector === 'string')
-            ? (_accordion, header) => header.querySelector(_selector)
-            : _selector
-        return selector(accordion, header)
+function convertToGetButton (selector: string | GetButton): GetButton {
+    if (typeof selector === 'string') {
+        return function ({ header }) {
+            return header.querySelector(selector)
+        }
+    } else {
+        return selector
     }
 }
 
-function convertToGetHeaders (_selector: string | GetHeaders): GetHeaders {
-    return function (accordion: HTMLElement) {
-        const selector = (typeof _selector === 'string')
-            ? accordion => accordion.querySelectorAll(_selector)
-            : _selector
-        return selector(accordion)
+function convertToGetHeaders (selector: string | GetHeaders): GetHeaders {
+    if (typeof selector === 'string') {
+        return function (accordion) {
+            return accordion.querySelectorAll(selector)
+        }
+    } else {
+        return selector
     }
 }
 
