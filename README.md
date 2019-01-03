@@ -312,7 +312,7 @@ The constructor takes an optional [Options](#type-options) object with the follo
 
 ## header
 
-**Type** string | (accordion: HTMLElement) → Iterable&lt;HTMLElement&gt; <br />
+**Type**: string | (accordion: HTMLElement) → Iterable&lt;HTMLElement&gt; <br />
 **Default**: `"[role='heading']"`
 
 A selector which returns a collection (e.g. NodeList, Array, jQuery instance etc.) of DOM elements
@@ -326,7 +326,7 @@ returns a NodeList resulting from the evaluation of the selector against the acc
 
 ## button
 
-**Type** string | ({ accordion: HTMLElement, header: HTMLElement }) → HTMLElement <br />
+**Type**: string | ({ accordion: HTMLElement, header: HTMLElement }) → HTMLElement <br />
 **Default**: `"[aria-controls]"`
 
 A selector (string) or function which returns an element in the header which functions like a button.
@@ -337,7 +337,6 @@ The default value selects the first element in the header with a non-empty `aria
 
 Typically, the button element is the child/descendant of an element which functions like a [header](#header)
 element (e.g. H1, H2 etc.). By default, this is an element with a `heading` role e.g.:
-
 
 ```html
 <div class="accordion">
@@ -374,7 +373,7 @@ Accordion.mount(el, {
 
 ## itemDisabled
 
-**Type** ([AccordionItem](#type-accordion-item)) → boolean
+**Type**: ([AccordionItem](#type-accordion-item)) → boolean
 
 A function used to determine whether an item is disabled. Disabled items don't respond to open or close (or toggle) actions.
 
@@ -392,7 +391,7 @@ const accordion = new Accordion(el, { itemDisabled })
 
 ## panel
 
-**Type** string | ({ accordion: HTMLElement, header: HTMLElement, button: HTMLElement }) → HTMLElement
+**Type**: string | ({ accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) → HTMLElement
 
 The container of the content to display/hide when the corresponding header is activated/de-activated.
 
