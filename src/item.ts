@@ -1,6 +1,5 @@
+import EventEmitter     from 'little-emitter'
 import { setAttribute } from './util'
-
-const EventEmitter = require('little-emitter')
 
 export type ItemData = {
     button: HTMLElement;
@@ -10,25 +9,59 @@ export type ItemData = {
     panel: HTMLElement;
 }
 
-export type IsDisabled = (data: ItemData) => boolean
+export type IsDisabled = (data: ItemData, next: () => boolean) => boolean
+
+type ActionOptions = {
+    force: boolean;
+}
+
+// constructor options
+type Options = {
+    button: HTMLElement;
+    header: HTMLElement;
+    index: number;
+    panel: HTMLElement;
+    isDisabled?: IsDisabled;
+}
+
+const ACTION_OPTIONS = { force: false }
+
+function ariaIsDisabled ({ button }: ItemData): boolean {
+    return button.getAttribute('aria-disabled') === 'true'
+}
+
+function defaultIsDisabled (): boolean {
+    return ariaIsDisabled(this.data)
+}
 
 export default class Item extends EventEmitter {
-    button: HTMLElement
-    header: HTMLElement
-    index: number
+    button: Options['button']
+    header: Options['header']
+    index: Options['index']
+    panel: Options['panel']
     isOpen = false
-    panel: HTMLElement
 
-    private _isDisabled: IsDisabled
+    private isDisabled: () => boolean
 
-    constructor ({ button, header, index, isDisabled, panel }) {
+    constructor (options: Options) {
         super()
 
-        this.button = button
-        this.header = header
-        this.index = index
-        this.panel = panel
-        this._isDisabled = isDisabled
+        this.button = options.button
+        this.header = options.header
+        this.index = options.index
+        this.panel = options.panel
+
+        const isDisabled = options.isDisabled
+
+        if (isDisabled) {
+            this.isDisabled = function () {
+                const data = this.data
+                const next = () => ariaIsDisabled(data)
+                return isDisabled(data, next)
+            }
+        } else {
+            this.isDisabled = defaultIsDisabled
+        }
     }
 
     get data (): ItemData {
@@ -41,12 +74,10 @@ export default class Item extends EventEmitter {
         }
     }
 
-    get isDisabled () {
-        return this._isDisabled(this.data)
-    }
-
-    close () {
-        if (this.isDisabled) return
+    close (options: ActionOptions = ACTION_OPTIONS) {
+        if (!options.force && this.isDisabled()) {
+            return
+        }
 
         this.emit('before:change', 'close', this)
         this.emit('before:close', this)
@@ -59,8 +90,10 @@ export default class Item extends EventEmitter {
         this.emit('change', 'close', this)
     }
 
-    open () {
-        if (this.isDisabled) return
+    open (options: ActionOptions = ACTION_OPTIONS) {
+        if (!options.force && this.isDisabled()) {
+            return
+        }
 
         this.emit('before:change', 'open', this)
         this.emit('before:open', this)
@@ -73,11 +106,11 @@ export default class Item extends EventEmitter {
         this.emit('change', 'open', this)
     }
 
-    toggle (open = !this.isOpen) {
+    toggle (open: boolean = !this.isOpen, options: ActionOptions = ACTION_OPTIONS) {
         if (open) {
-            this.open()
+            this.open(options)
         } else {
-            this.close()
+            this.close(options)
         }
     }
 }

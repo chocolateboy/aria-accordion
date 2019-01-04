@@ -18,7 +18,7 @@ export default class Accordion extends BaseAccordion {
 
     close (): this
     close (index: number): this
-    close (...args): this {
+    close (...args: Array<any>): this {
         return super.close(args.length === 0 ? this._selectedIndex : args[0])
     }
 
@@ -37,7 +37,8 @@ export default class Accordion extends BaseAccordion {
             this._selectedIndex = opened.index
         })
 
-        item.toggle(open)
+        // force: bypass the isDisabled check
+        item.toggle(open, { force: true })
 
         item.on('close', closed => {
             if (closed.index === this._selectedIndex) {

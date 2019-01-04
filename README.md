@@ -28,7 +28,7 @@
 - [Options](#options)
   - [header](#header)
   - [button](#button)
-  - [itemDisabled](#itemdisabled)
+  - [disabled](#disabled)
   - [panel](#panel)
 - [Events](#events)
   - [before:change](#beforechange)
@@ -200,7 +200,7 @@ Optional hooks to configure an accordion's HTML bindings and behavior.
 type Options = {
     header?: string | (accordion: HTMLElement) => Iterable<HTMLElement>;
     button?: string | ({ accordion: HTMLElement, header: HTMLElement }) => HTMLElement;
-    itemDisabled?: (item: AccordionItem) => boolean;
+    disabled?: (item: AccordionItem, next: () => boolean) => boolean;
     panel?: ({ accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement;
 }
 ```
@@ -371,22 +371,40 @@ Accordion.mount(el, {
 })
 ```
 
-## itemDisabled
+## disabled
 
-**Type**: ([AccordionItem](#type-accordion-item)) → boolean
+**Type**: (item: [AccordionItem](#type-accordion-item), next: () → boolean) → boolean
 
-A function used to determine whether an item is disabled. Disabled items don't respond to open or close (or toggle) actions.
+A callback used to determine whether an item is disabled. Disabled items don't respond to open or close (or toggle) actions.
 
-The default implementation returns true if the button has an `aria-disabled` attribute with a true value, or false otherwise.
+The `next` parameter is a function which calls the default `disabled` implementation with the same [AccordionItem](#type-accordion-item) object.
+The default implementation returns true if the item's button element has an `aria-disabled="true"` attribute, or false otherwise.
 
-Can be used e.g. to treat an item with a disabled button as disabled e.g.:
+Can be used e.g. to avoid opening/closing items with a disabled button:
 
 ```javascript
-function itemDisabled ({ button }) {
-    return button.hasAttribute('disabled')
+// disable <button disabled>...</button> as well as <button aria-disabled="true">...</button>
+function disabled ({ button }, next) {
+    return button.hasAttribute('disabled') || next()
 }
 
-const accordion = new Accordion(el, { itemDisabled })
+const accordion = new Accordion(el, { disabled })
+```
+
+\- or to disable every item in an accordion:
+
+```html
+<div class="accordion" data-disabled="true">
+    ...
+</div>
+```
+
+```javascript
+function disabled ({ accordion }) {
+    return accordion.getAttribute('data-disabled') === 'true'
+}
+
+const accordion = new Accordion(el, { disabled })
 ```
 
 ## panel

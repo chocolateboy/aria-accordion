@@ -1,4 +1,9 @@
-export function setAttribute (element: HTMLElement, name: string, value, _options?: { replace: boolean }) {
+export function setAttribute (
+    element: HTMLElement,
+    name: string,
+    value: boolean | string,
+    _options?: { replace: boolean }
+) {
     const options = _options || { replace: false }
     const $value = String(value)
 

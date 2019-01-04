@@ -10,7 +10,7 @@
     "types": "dist",
     "scripts": {
         "build": "microbundle --no-compress --strict --format cjs,es",
-        "clean": "shx rm -rf ./dist ./target ./.*cache* ./src/*.{js,d.ts,map}",
+        "clean": "shx rm -rf ./dist ./target ./.*cache*",
         "prepublishOnly": "npm run clean && npm run build && node ./test.js",
         "test": "npm run build && node ./test.js"
     },
@@ -34,6 +34,7 @@
     "devDependencies": {
         "@babel/core": "^7.1.6",
         "@babel/preset-env": "^7.1.6",
+        "@types/node": "^10.12.18",
         "microbundle": "^0.8.4",
         "shx": "^0.3.2",
         "typescript": "^3.1.6"

@@ -1,7 +1,7 @@
+import EventEmitter                                     from 'little-emitter'
 import Item, { ItemData, IsDisabled as IsItemDisabled } from './item'
 import { setAttribute }                                 from './util'
 
-const EventEmitter = require('little-emitter')
 const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
@@ -11,8 +11,15 @@ type GetPanel = (params: { accordion: HTMLElement, button: HTMLElement, header: 
 export type Options = {
     header?: string | GetHeaders;
     button?: string | GetButton;
+    disabled?: IsItemDisabled;
     panel?: GetPanel;
-    itemDisabled?: IsItemDisabled;
+}
+
+type Hooks = {
+    getButton: GetButton;
+    getHeaders: GetHeaders;
+    getPanel: GetPanel;
+    isItemDisabled?: IsItemDisabled;
 }
 
 const enum Warning { NO_HEADERS, NO_BUTTON, NO_PANEL }
@@ -62,10 +69,6 @@ function defaultGetPanel ({ accordion, button }: { accordion: HTMLElement, butto
     }
 }
 
-function defaultIsItemDisabled ({ button }: ItemData): boolean {
-    return button.getAttribute('aria-disabled') === 'true'
-}
-
 export default class BaseAccordion extends EventEmitter {
     protected _accordion: HTMLElement
     protected _items: Array<Item>
@@ -88,7 +91,7 @@ export default class BaseAccordion extends EventEmitter {
         const options = Object.assign({}, OPTIONS, _options || {})
         const getHeaders = convertToGetHeaders(options.header)
         const getButton = convertToGetButton(options.button)
-        const isItemDisabled = options.itemDisabled || defaultIsItemDisabled
+        const isItemDisabled = options.disabled
         const getPanel = options.panel || defaultGetPanel
 
         this._accordion = accordion
@@ -146,7 +149,7 @@ export default class BaseAccordion extends EventEmitter {
         }
     }
 
-    private _collectItems ({ getButton, getHeaders, getPanel, isItemDisabled }) {
+    private _collectItems ({ getButton, getHeaders, getPanel, isItemDisabled }: Hooks) {
         const { accordion } = this
         const headers = getHeaders(accordion)
 
