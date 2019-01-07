@@ -1,10 +1,10 @@
-## 0.1.0 - TBD
+## 0.1.0 - 2019-01-07
 
 - **breaking change**
     - multi-parameter hooks now take named parameters rather than positional parameters
 
 - don't open/close disabled items
-    - add an itemDisabled hook to determine whether an item is disabled
+    - add a `disabled` hook to determine whether an item is disabled
 
 ## 0.0.3 - 2018-12-19
 
