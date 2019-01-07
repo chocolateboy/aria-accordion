@@ -2,6 +2,7 @@ import EventEmitter     from 'little-emitter'
 import { setAttribute } from './util'
 
 export type ItemData = {
+    accordion: HTMLElement;
     button: HTMLElement;
     header: HTMLElement;
     index: number;
@@ -17,6 +18,7 @@ type ActionOptions = {
 
 // constructor options
 type Options = {
+    accordion: HTMLElement;
     button: HTMLElement;
     header: HTMLElement;
     index: number;
@@ -35,6 +37,7 @@ function defaultIsDisabled (): boolean {
 }
 
 export default class Item extends EventEmitter {
+    accordion: Options['accordion']
     button: Options['button']
     header: Options['header']
     index: Options['index']
@@ -46,6 +49,7 @@ export default class Item extends EventEmitter {
     constructor (options: Options) {
         super()
 
+        this.accordion = options.accordion
         this.button = options.button
         this.header = options.header
         this.index = options.index
@@ -66,6 +70,7 @@ export default class Item extends EventEmitter {
 
     get data (): ItemData {
         return {
+            accordion: this.accordion,
             button: this.button,
             header: this.header,
             index: this.index,

@@ -184,6 +184,7 @@ An object representing a header/panel pair in an accordion:
 
 ```typescript
 type AccordionItem = {
+    accordion: HTMLElement;
     button: HTMLElement;
     header: HTMLElement;
     index: number;

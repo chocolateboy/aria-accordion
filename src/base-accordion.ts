@@ -1,17 +1,23 @@
-import EventEmitter                                     from 'little-emitter'
+import EventEmitter from 'little-emitter'
 import Item, { ItemData, IsDisabled as IsItemDisabled } from './item'
-import { setAttribute }                                 from './util'
+import { setAttribute } from './util'
 
 const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
-type GetButton = (params: { accordion: HTMLElement, header: HTMLElement }) => HTMLElement | null;
-type GetPanel = (params: { accordion: HTMLElement, button: HTMLElement, header: HTMLElement }) => HTMLElement | null;
+
+type GetButton = (
+    params: { accordion: HTMLElement, header: HTMLElement }
+) => HTMLElement | null;
+
+type GetPanel = (
+    params: { accordion: HTMLElement, button: HTMLElement, header: HTMLElement }
+) => HTMLElement | null;
 
 export type Options = {
-    header?: string | GetHeaders;
     button?: string | GetButton;
     disabled?: IsItemDisabled;
+    header?: string | GetHeaders;
     panel?: GetPanel;
 }
 
@@ -154,7 +160,12 @@ export default class BaseAccordion extends EventEmitter {
         const headers = getHeaders(accordion)
 
         if (!headers) {
-            this.emit('warning', Warning.NO_HEADERS, 'no headers found in accordion', accordion)
+            this.emit(
+                'warning',
+                Warning.NO_HEADERS,
+                'no headers found in accordion',
+                accordion
+            )
             return
         }
 
@@ -164,14 +175,26 @@ export default class BaseAccordion extends EventEmitter {
             const button = getButton({ accordion, header })
 
             if (!button) {
-                this.emit('warning', Warning.NO_BUTTON, 'no button found in header', header)
+                this.emit(
+                    'warning',
+                    Warning.NO_BUTTON,
+                    'no button found in header',
+                    header
+                )
                 continue
             }
 
             const panel = getPanel({ accordion, button, header })
 
             if (!panel) {
-                this.emit('warning', Warning.NO_PANEL, 'panel not found', accordion, header, button)
+                this.emit(
+                    'warning',
+                    Warning.NO_PANEL,
+                    'panel not found',
+                    accordion,
+                    header,
+                    button
+                )
                 continue
             }
 
@@ -190,7 +213,14 @@ export default class BaseAccordion extends EventEmitter {
             setAttribute(panel, 'aria-labelledby', header.id)
 
             const index = this._items.length
-            const item = new Item({ button, header, index, isDisabled: isItemDisabled, panel })
+            const item = new Item({
+                accordion,
+                button,
+                header,
+                index,
+                isDisabled: isItemDisabled,
+                panel
+            })
 
             this._onItem(item, state)
             this._items.push(item)
