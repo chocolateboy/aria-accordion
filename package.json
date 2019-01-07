@@ -1,6 +1,6 @@
 {
     "name": "flexcord",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Flexible, ARIA-first accordions which work with your existing CSS, markup, and code",
     "repository": "chocolateboy/aria-accordion",
     "author": "chocolateboy",
@@ -10,7 +10,7 @@
     "types": "dist",
     "scripts": {
         "build": "microbundle --no-compress --strict --format cjs,es",
-        "clean": "shx rm -rf ./dist ./target ./.*cache*",
+        "clean": "shx rm -rf ./dist ./.*cache*",
         "prepublishOnly": "npm run clean && npm run build && node ./test.js",
         "test": "npm run build && node ./test.js"
     },

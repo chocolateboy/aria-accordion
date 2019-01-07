@@ -1,8 +1,7 @@
 import EventEmitter from 'little-emitter'
+import nanoid from 'nanoid/non-secure'
 import Item, { ItemData, IsDisabled as IsItemDisabled } from './item'
 import { setAttribute } from './util'
-
-const nanoid = require('nanoid/non-secure')
 
 type GetHeaders = (accordion: HTMLElement) => Iterable<HTMLElement>;
 

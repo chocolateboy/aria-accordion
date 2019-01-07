@@ -1,3 +1,7 @@
+## 0.1.1 - 2019-01-07
+
+- remove `require`s from the ESM build
+
 ## 0.1.0 - 2019-01-07
 
 - **breaking change**
