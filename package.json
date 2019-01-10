@@ -7,11 +7,13 @@
     "license": "Artistic-2.0",
     "main": "dist/index.js",
     "module": "dist/index.mjs",
-    "types": "dist",
+    "types": "dist/index.d.ts",
     "scripts": {
-        "build": "microbundle --no-compress --strict --format cjs,es",
+        "build": "npm run build:src && npm run bundle:types",
+        "build:src": "microbundle --no-compress --strict --format cjs,es",
+        "bundle:types": "shx cp src/types.d.ts ./dist/",
         "clean": "shx rm -rf ./dist ./.*cache*",
-        "prepublishOnly": "npm run clean && npm run build && node ./test.js",
+        "prepublishOnly": "npm run clean && npm run test",
         "test": "npm run build && node ./test.js"
     },
     "files": [
@@ -24,6 +26,7 @@
         "dist/index.mjs.map",
         "dist/item.d.ts",
         "dist/multi-accordion.d.ts",
+        "dist/types.d.ts",
         "dist/util.d.ts"
     ],
     "dependencies": {

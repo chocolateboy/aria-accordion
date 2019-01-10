@@ -32,7 +32,7 @@ function ariaIsDisabled ({ button }: ItemData): boolean {
     return button.getAttribute('aria-disabled') === 'true'
 }
 
-function defaultIsDisabled (): boolean {
+function defaultIsDisabled (this: Item): boolean {
     return ariaIsDisabled(this.data)
 }
 
